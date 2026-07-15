@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niche Market Research Tool — Personal Etsy API App</title>
+<meta name="description" content="A personal, read-only market research tool using the Etsy Open API v3. Built and used by a single prospective Etsy seller.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F6F5;
+    --ink:#17262B;
+    --ink-soft:#4A5C62;
+    --card:#FFFFFF;
+    --line:#DDE4E2;
+    --teal:#0F766E;
+    --teal-soft:#E4F0EE;
+    --amber:#B45309;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+  body{
+    font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);
+    line-height:1.65;font-size:16px;
+    background-image:linear-gradient(var(--line) 1px, transparent 1px),linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;background-position:-1px -1px;
+  }
+  a{color:var(--teal)}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 24px}
+  header{padding:28px 0;border-bottom:1px solid var(--line);background:var(--paper)}
+  .brand{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand h1{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+  .badges{display:flex;gap:8px;flex-wrap:wrap}
+  .badge{font-family:var(--mono);font-size:.72rem;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink-soft)}
+  .badge.ok{border-color:var(--teal);color:var(--teal);background:var(--teal-soft)}
+  .hero{padding:72px 0 48px}
+  .eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+  .hero h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.9rem,4.5vw,3rem);font-weight:700;line-height:1.15;letter-spacing:-.02em;max-width:19ch}
+  .hero p{margin-top:18px;max-width:60ch;color:var(--ink-soft);font-size:1.05rem}
+  section{padding:40px 0}
+  h3{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700;margin-bottom:18px;letter-spacing:-.01em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:26px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .step .k{font-family:var(--mono);font-size:.75rem;color:var(--teal);margin-bottom:8px}
+  .step h4{font-size:.98rem;font-weight:600;margin-bottom:6px}
+  .step p{font-size:.9rem;color:var(--ink-soft)}
+  /* signature: sample report */
+  .report{background:var(--ink);color:#DFE8E6;border-radius:12px;padding:0;overflow:hidden;border:1px solid #22363C}
+  .report-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid #22363C;font-family:var(--mono);font-size:.75rem;color:#8FA5A0}
+  .dot{width:9px;height:9px;border-radius:50%;background:#33474D}
+  .report table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.78rem}
+  .report th{color:#8FA5A0;font-weight:500;text-align:left;padding:12px 14px;border-bottom:1px solid #22363C;white-space:nowrap}
+  .report td{padding:11px 14px;border-bottom:1px solid #1E3238;white-space:nowrap}
+  .report tr:last-child td{border-bottom:none}
+  .score{color:#7DD3C0;font-weight:500}
+  .bar{display:inline-block;height:6px;border-radius:3px;background:#7DD3C0;vertical-align:middle;margin-right:8px}
+  .report .note{padding:12px 18px;font-family:var(--mono);font-size:.72rem;color:#8FA5A0;border-top:1px solid #22363C}
+  .tbl-scroll{overflow-x:auto}
+  /* endpoints */
+  .endpoints li{list-style:none;display:flex;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .endpoints li:last-child{border-bottom:none}
+  .method{font-family:var(--mono);font-size:.72rem;font-weight:500;color:var(--teal);background:var(--teal-soft);padding:2px 8px;border-radius:4px}
+  .path{font-family:var(--mono);font-size:.85rem}
+  .endpoints .why{font-size:.85rem;color:var(--ink-soft);flex-basis:100%}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .fact h4{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .fact p{font-size:.95rem;font-weight:500}
+  footer{padding:40px 0 56px;border-top:1px solid var(--line);margin-top:24px;color:var(--ink-soft);font-size:.88rem}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand">
+    <h1>Niche&nbsp;Market&nbsp;Research&nbsp;Tool</h1>
+    <div class="badges">
+      <span class="badge ok">read-only</span>
+      <span class="badge">personal use</span>
+      <span class="badge">Etsy Open API v3</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="hero">
+      <div class="eyebrow">Personal developer project</div>
+      <h2>Market research for one prospective Etsy seller.</h2>
+      <p>This is a small command-line tool I built for myself. Once a day it queries public
+      Etsy listings by keyword, aggregates listing counts, price ranges, and shop statistics,
+      and writes a local report that helps me decide which handmade and digital products to
+      create and sell on Etsy. It never modifies anything, collects no user data, and is
+      used only by me.</p>
+    </div>
+
+    <section>
+      <h3>How it works</h3>
+      <div class="grid">
+        <div class="card step">
+          <div class="k">STEP 1 — QUERY</div>
+          <h4>Search public listings</h4>
+          <p>A fixed list of ~18 seed keywords is searched once daily against public, active listings.</p>
+        </div>
+        <div class="card step">
+          <div class="k">STEP 2 — AGGREGATE</div>
+          <h4>Compute category stats</h4>
+          <p>Listing counts, price distributions, and public shop statistics are combined into a per-keyword opportunity score.</p>
+        </div>
+        <div class="card step">
+          <div class="k">STEP 3 — REPORT</div>
+          <h4>Write a local file</h4>
+          <p>Results are saved as a CSV and a short Markdown summary on my own machine. Nothing is published or resold.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Sample daily output</h3>
+      <div class="report">
+        <div class="report-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>&nbsp;reports/report_2026-07-13.md</div>
+        <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr><th>score</th><th>keyword</th><th>active listings</th><th>median price</th><th>type</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="score"><span class="bar" style="width:64px"></span>85.3</td><td>notion template business</td><td>2,431</td><td>$49</td><td>digital</td></tr>
+            <tr><td class="score"><span class="bar" style="width:58px"></span>78.9</td><td>financial model spreadsheet</td><td>1,876</td><td>$62</td><td>digital</td></tr>
+            <tr><td class="score"><span class="bar" style="width:51px"></span>71.2</td><td>personalized leather portfolio</td><td>4,120</td><td>$88</td><td>handmade</td></tr>
+            <tr><td class="score"><span class="bar" style="width:44px"></span>63.5</td><td>walnut desk organizer</td><td>6,540</td><td>$74</td><td>handmade</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="note">illustrative sample · scores are my own heuristic, computed locally from public data</div>
+      </div>
+    </section>
+
+    <section>
+      <h3>API usage</h3>
+      <div class="card">
+        <ul class="endpoints">
+          <li>
+            <span class="method">GET</span><span class="path">/v3/application/listings/active</span>
+            <span class="why">Keyword search of public active listings (findAllListingsActive).</span>
+          </li>
+          <li>
+            <span class="method">GET</span><span class="path">/v3/application/shops/{shop_id}</span>
+            <span class="why">Public shop statistics for context (getShop).</span>
+          </li>
+          <li>
+            <span class="method">GET</span><span class="path">/v3/application/listings/batch</span>
+            <span class="why">Public listing details in batches (getListingsByListingIds).</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h3>Scope &amp; compliance</h3>
+      <div class="card facts">
+        <div class="fact"><h4>Access</h4><p>API key only — no OAuth, no member data</p></div>
+        <div class="fact"><h4>Writes</h4><p>None. Read-only endpoints exclusively</p></div>
+        <div class="fact"><h4>Volume</h4><p>One scheduled run per day, throttled ≤ 4 req/s</p></div>
+        <div class="fact"><h4>Users</h4><p>Only me (single developer)</p></div>
+        <div class="fact"><h4>Data handling</h4><p>Aggregates stored locally; never republished or sold</p></div>
+        <div class="fact"><h4>Commercial use</h4><p>No — the tool is free, private, and not a service</p></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Niche Market Research Tool — a personal project.</span>
+    <span>Not affiliated with or endorsed by Etsy, Inc. “Etsy” is a trademark of Etsy, Inc.</span>
+  </div>
+</footer>
+
+</body>
+</html>
